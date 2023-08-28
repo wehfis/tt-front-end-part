@@ -4,25 +4,26 @@ import { productURL, receiptURL, productsInReceiptURL } from './endpoints';
 import { ProductDTO } from './DTOs/ProductDTO';
 import { ReceiptDTO } from './DTOs/ReceiptDTO';
 import ProductList from './components/ProductList'
-import CartItem from './components/CartItem';
+import Receipt from './components/Receipt';
+import { useProducts } from './ProductsContext';
 
 const App = () => {
-  const [Receipts, setReceipts] = useState<ReceiptDTO[]>([]);
-  const [Products, setProducts] = useState<ProductDTO[]>([]);
-  const [isProdSelected, setIsProdSelected] = useState<boolean>(false);
+  const { products, addProduct, removeProduct, setProducts } = useProducts();
+  // const [Receipts, setReceipts] = useState<ReceiptDTO[]>([]);
+  // const [Products, setProducts] = useState<ProductDTO[]>([]);
   const [currProd, setCurrProd] = useState<ProductDTO | null>(null);
 
-  const handleAdd = (productToAdd: ProductDTO) => {
-    setIsProdSelected(true);
-    setProducts(prevProducts => [...prevProducts, productToAdd]);
-  }
+  // const handleAdd = (productToAdd: ProductDTO) => {
+  //   if (!Products.some(product => product.id === productToAdd.id)) {
+  //     setProducts(prevProducts => [...prevProducts, productToAdd]);
+  //   }
+  // }
+
 
   return (
     <div className="App">
-        <ProductList addToReceipt={handleAdd}/>
-        {isProdSelected &&
-        <CartItem prodsInRes={Products} />
-        }
+        <ProductList addToReceipt={addProduct}/>
+        <Receipt prodsInRes={products} key={products.length}/>
     </div>
   );
 }

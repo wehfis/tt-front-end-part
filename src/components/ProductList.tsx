@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { productURL } from '../endpoints';
 import { ProductDTO } from '../DTOs/ProductDTO';
+import { useProducts } from '../ProductsContext';
 
 interface AddToReceiptProps {
   addToReceipt: (productToAdd: ProductDTO) => void;
@@ -19,12 +20,12 @@ const ProductList = ({ addToReceipt } : AddToReceiptProps ) => {
 
   return (
     <div>
-      <h2>Available Products</h2>
+      <h2>Доступні Товари</h2>
       <ul>
         {products.map(product => (
           <li key={product.id}>
             {product.name} - ${product.price}
-            <button onClick={() => addToReceipt(product)}>Add to Receipt</button>
+            <button onClick={() => addToReceipt(product)}>Додати в Корзину</button>
           </li>
         ))}
       </ul>

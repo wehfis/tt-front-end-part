@@ -1,40 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { ProductDTO } from '../DTOs/ProductDTO';
-import { ReceiptDTO } from '../DTOs/ReceiptDTO';
-import Receipt from './Receipt';
+import { ProdInResDTO } from '../DTOs/ProdInResDTO';
+import { receiptURL } from '../endpoints';
 
 interface CartItemProps {
-  prodsInRes: ProductDTO[] | null;
+  receiptItem: ProductDTO | null;
+  removeReceipt: (receipt : ProductDTO) => void;
 }
 
-const CartItem = ({ prodsInRes } : CartItemProps ) => {
-
+const CartItem = ({ receiptItem, removeReceipt } : CartItemProps) => {
+  const [quantity, setQuantity] = useState<number>(1);
+  const [price, setPrice] = useState<number | null>(receiptItem ? receiptItem.price : null);
   const [total, setTotal] = useState<number>(0);
-  const [filteredProdsInRes, setFilteredProdsInRes] = useState<ProductDTO[] | null>(prodsInRes);
 
-
-  useEffect(() => {
+  const handleIncrement = () => {
+    setQuantity(quantity + 1);
     
-  }, [prodsInRes, filteredProdsInRes]);
-
-  const handlePay = () => {
-
+    if (receiptItem !== null) {
+      setPrice(receiptItem.price * (quantity + 1));
+    }
   }
 
-  const handleCloseRes = (product : ProductDTO) => {
-    if (filteredProdsInRes) {
-      prodsInRes = filteredProdsInRes.filter(prod => prod.id !== product.id);
-      setFilteredProdsInRes(prodsInRes);
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+      if (receiptItem !== null) {
+        setPrice(receiptItem.price * (quantity - 1));      
+      }
+    }
+    
+  }
+
+  const handleClose = () => {
+    if (receiptItem !== null) {
+      removeReceipt(receiptItem);
     }
   }
 
   return (
     <div>
-      {prodsInRes  && prodsInRes.map((product) => (
-        <Receipt key={product.id} receiptItems={product} removeReceipt={handleCloseRes}/>
-        ))}
-        <h1>Total: {total}</h1>
-        <button onClick={handlePay}>PAY</button>
+      {receiptItem &&
+        <div>
+          <h2>Receipt for "{receiptItem.name}"</h2>
+          <button onClick={handleDecrement}> - </button>
+          <button onClick={handleIncrement}> + </button>
+          <p>Quantity <b>{quantity}</b></p>
+          <p>Price <b>{price}$</b></p>
+          <button onClick={handleClose}>Вилучити з чеку</button>
+        </div>
+        }
     </div>
   );
 };
