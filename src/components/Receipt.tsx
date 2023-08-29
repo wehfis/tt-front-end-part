@@ -20,6 +20,9 @@ const Receipt = ({ prodsInRes} : ReceiptProps ) => {
     if (sum){
       setTotalPrice(sum);
     }
+    else{
+      setTotalPrice(0);
+    }
   }, [prodsInRes]);
 
   const handleDel = () => {
