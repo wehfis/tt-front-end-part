@@ -1,31 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { receiptURL } from '../endpoints';
 import { ProductDTO } from '../DTOs/ProductDTO';
 import { ReceiptDTO } from '../DTOs/ReceiptDTO';
+import { ProdInResDTO } from '../DTOs/ProdInResDTO';
 import CartItem from './CartItem';
 import { useProducts } from '../ProductsContext';
+import axios from 'axios';
 
 interface ReceiptProps {
-  prodsInRes: ProductDTO[] | null;
+  prodsInRes: ProdInResDTO[] | null;
 }
-
-const Receipt = ({ prodsInRes } : ReceiptProps ) => {
-  const { products, totalPrice, addProduct, removeProduct, setProducts } = useProducts();
+const Receipt = ({ prodsInRes} : ReceiptProps ) => {
+  const { receiptId, totalPrice, setTotalPrice, setProdsInRes, removeProduct, cleanReceipt, setProducts, setReceiptId} = useProducts();
 
   useEffect(() => {
-    
-  }, [prodsInRes, products]);
+    const sum = prodsInRes?.reduce((total, prod) => {
+      return total + prod.price;
+    }, 0);
+    if (sum){
+      setTotalPrice(sum);
+    }
+  }, [prodsInRes]);
 
+  const handleDel = () => {
+    setProdsInRes([]);
+    setProducts([]);
+    setTotalPrice(0);
+    setReceiptId('');
+    cleanReceipt();
+  }
+  
   const handlePay = () => {
-
+    const updatedReceipt: ReceiptDTO = {
+      total: totalPrice,
+      closed: false
+    };
+    axios
+      .put(`${receiptURL}/${receiptId}/updateReceipt`, updatedReceipt)
+      .then((response) => {
+        setProdsInRes([]);
+        setProducts([]);
+        setTotalPrice(0);
+        setReceiptId('');
+        cleanReceipt();
+      })
+      .catch((error) => {
+        console.log("Error updating Receipt:", error);
+      });
   }
 
   return (  
-    <div>
+    <div className='container'>
       {prodsInRes  && prodsInRes.map((product) => (
-        <CartItem key={product.id} receiptItem={product} removeReceipt={removeProduct}/>
+        <CartItem key={product.product_id} receiptItem={product} removeReceipt={removeProduct}/>
         ))}
-        <h1>Загальна сума: {totalPrice}</h1>
-        <button onClick={handlePay}>Сплатити</button>
+        <h1>Total Price: {totalPrice}$</h1>
+        <button className='remove-button' onClick={handleDel}>Delete Check</button>
+        <button onClick={handlePay}>Pay</button>
     </div>
   );
 };

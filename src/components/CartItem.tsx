@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { ProductDTO } from '../DTOs/ProductDTO';
 import { ProdInResDTO } from '../DTOs/ProdInResDTO';
-import { receiptURL } from '../endpoints';
+import { useProducts } from '../ProductsContext';
 
 interface CartItemProps {
-  receiptItem: ProductDTO | null;
-  removeReceipt: (receipt : ProductDTO) => void;
+  receiptItem: ProdInResDTO | null;
+  removeReceipt: (receipt : ProdInResDTO) => void;
 }
 
 const CartItem = ({ receiptItem, removeReceipt } : CartItemProps) => {
-  const [quantity, setQuantity] = useState<number>(1);
-  const [price, setPrice] = useState<number | null>(receiptItem ? receiptItem.price : null);
-  const [total, setTotal] = useState<number>(0);
+  const { products, incrementProdInRes, decrementProdInRes } = useProducts();
+  const currentProdDTO = products.find(prod => prod.id === receiptItem?.product_id); 
 
   const handleIncrement = () => {
-    setQuantity(quantity + 1);
-    
     if (receiptItem !== null) {
-      setPrice(receiptItem.price * (quantity + 1));
+      incrementProdInRes(receiptItem);
     }
   }
 
   const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-      if (receiptItem !== null) {
-        setPrice(receiptItem.price * (quantity - 1));      
-      }
-    }
-    
+    if (receiptItem !== null) {
+      decrementProdInRes(receiptItem);
+    } 
   }
 
   const handleClose = () => {
@@ -42,12 +32,14 @@ const CartItem = ({ receiptItem, removeReceipt } : CartItemProps) => {
     <div>
       {receiptItem &&
         <div>
-          <h2>Receipt for "{receiptItem.name}"</h2>
-          <button onClick={handleDecrement}> - </button>
-          <button onClick={handleIncrement}> + </button>
-          <p>Quantity <b>{quantity}</b></p>
-          <p>Price <b>{price}$</b></p>
-          <button onClick={handleClose}>Вилучити з чеку</button>
+          <h2>Product "{currentProdDTO?.name}"</h2>
+          <div className='quantity-block'>
+          <button className='quantity-button' onClick={handleDecrement}> - </button>
+          <p><b>{receiptItem.quantity}</b></p>
+          <button className='quantity-button' onClick={handleIncrement}> + </button>
+          <p>Price <b>{receiptItem.price}$</b></p>
+          <button className='remove-button' onClick={handleClose}>Remove</button>
+          </div>
         </div>
         }
     </div>
