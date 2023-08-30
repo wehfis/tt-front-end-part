@@ -102,6 +102,9 @@ export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) 
   }
   const decrementProdInRes = (receiptItem: ProdInResDTO) => {
     const current_prod = products.find(prod => prod.id === receiptItem.product_id);
+    if (receiptItem.quantity === 1){
+      removeProduct(receiptItem);
+    }
     if (current_prod && receiptItem.quantity > 1){
       const updatedProdInRes: ProdInResDTO = {
         quantity: receiptItem.quantity - 1,
