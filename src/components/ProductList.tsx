@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { productURL } from '../endpoints';
 import { ProductDTO } from '../DTOs/ProductDTO';
+import { useProducts } from '../ProductsContext';
 
 interface AddToReceiptProps {
   addToReceipt: (productToAdd: ProductDTO) => void;
@@ -9,6 +10,7 @@ interface AddToReceiptProps {
 
 const ProductList = ({ addToReceipt } : AddToReceiptProps ) => {
   const [products, setProducts] = useState<ProductDTO[]>([]);
+  const { prodsInRes } = useProducts();
 
   useEffect(() => {
     axios.get<ProductDTO[]>(productURL)
@@ -24,7 +26,13 @@ const ProductList = ({ addToReceipt } : AddToReceiptProps ) => {
         {products.map(product => (
           <li key={product.id}>
             {product.name} - ${product.price}
-            <button onClick={() => addToReceipt(product)}>Add to Check</button>
+            <button
+            className={prodsInRes.some((p) => p.product_id === product.id) ? 'button-disabled' : ''}
+            onClick={() => addToReceipt(product)}
+            disabled={prodsInRes.some((p) => p.product_id === product.id)}
+            >
+              {prodsInRes.find(p => p.product_id === product.id) ? 'In Check' : 'Add to Check'}
+            </button>
           </li>
         ))}
       </ul>
